@@ -5,8 +5,8 @@ import db from "../../utils/firestore";
 import {
   collection,
   addDoc,
-  getDocs,
-  DocumentSnapshot,
+  // getDocs,
+  // DocumentSnapshot,`
 } from "firebase/firestore";
 import ListRecords from "./listRecords";
 
