@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { app } from "../../../lib/firebaseConfig";
 import { getAuth } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
 
 export default function Masuk() {
   const [user, setUser] = useState(null);
@@ -34,13 +34,23 @@ export default function Masuk() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      const auth = getAuth(app);
+      await signOut(auth);
+      router.push("/masuk");
+    } catch (error) {
+      console.error("Error signing out", error);
+    }
+  };
+
   return (
     <main>
       <h1>Masuk</h1>
       {user ? (
         <>
           <p>Selamat datang, {user.displayName}</p>
-          {/* <button onClick={signOut}>Keluar</button> */}
+          <button onClick={handleLogout}>Keluar</button>
         </>
       ) : (
         <button onClick={signInWithGoogle}>Masuk dengan Google</button>

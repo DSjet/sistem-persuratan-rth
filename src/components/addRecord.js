@@ -8,7 +8,6 @@ import {
   // getDocs,
   // DocumentSnapshot,`
 } from "firebase/firestore";
-import ListRecords from "./listRecords";
 
 const AddRecord = () => {
   const [value, setValue] = useState("");
@@ -37,7 +36,6 @@ const AddRecord = () => {
         />
         <button type="submit">Add Item</button>
       </form>
-      <ListRecords />
     </div>
   );
 };
