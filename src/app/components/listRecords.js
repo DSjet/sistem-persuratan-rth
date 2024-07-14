@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import db from "../../utils/firestore";
+import db from "../../../utils/firestore";
 import { collection, getDocs, doc, onSnapshot } from "firebase/firestore";
 import DeleteRecords from "./deleteRecord";
 
