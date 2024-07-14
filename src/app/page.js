@@ -3,8 +3,7 @@ import React, { useEffect, useState } from "react";
 import { getAuth, signOut, onAuthStateChanged, User } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { app } from "../lib/firebaseConfig";
-import ListRecords from "@/components/listRecords";
-import Image from "next/image";
+import ListRecords from "./components/listRecords";
 import Link from "next/link";
 
 function Home() {
