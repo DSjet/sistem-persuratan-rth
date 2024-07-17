@@ -15,28 +15,21 @@ import {
   VerticalAlign,
 } from "docx";
 import { NextResponse } from "next/server";
-import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
-import { app } from "../../../lib/firebaseConfig";
 
 export async function POST(req) {
-  const storage = getStorage(app);
-
   const body = await req.json();
   const {
     tahun,
     nomor_surat,
     nama,
     tempat_tanggal_lahir,
-    pekerjaan,
     jenis_kelamin,
-    agama,
-    alamat_terakhir,
-    umur,
-    hari_kematian,
-    tanggal_kematian,
-    pukul_kematian,
-    tempat_kematian,
-    penyebab_kematian,
+    kewarganegaraan,
+    pekerjaan,
+    nik,
+    alamat,
+    bidang_usaha,
+    nama_usaha,
     tanggal_surat,
   } = body;
 
@@ -56,7 +49,7 @@ export async function POST(req) {
       process.cwd(),
       "public",
       "template",
-      "template_surat kematian.docx"
+      "template_surat usaha.docx"
     );
 
     // Ensure the template path points to a file
@@ -96,58 +89,41 @@ export async function POST(req) {
             }),
           ],
         },
-        pekerjaan: {
-          type: PatchType.PARAGRAPH,
-          children: [new TextRun({ text: pekerjaan, font: "Times New Roman" })],
-        },
         jenis_kelamin: {
           type: PatchType.PARAGRAPH,
           children: [
             new TextRun({ text: jenis_kelamin, font: "Times New Roman" }),
           ],
         },
-        agama: {
-          type: PatchType.PARAGRAPH,
-          children: [new TextRun({ text: agama, font: "Times New Roman" })],
-        },
-        alamat_terakhir: {
+        kewarganegaraan: {
           type: PatchType.PARAGRAPH,
           children: [
-            new TextRun({ text: alamat_terakhir, font: "Times New Roman" }),
+            new TextRun({ text: kewarganegaraan, font: "Times New Roman" }),
           ],
         },
-        umur: {
+        pekerjaan: {
           type: PatchType.PARAGRAPH,
-          children: [new TextRun({ text: umur, font: "Times New Roman" })],
+          children: [new TextRun({ text: pekerjaan, font: "Times New Roman" })],
         },
-        hari_kematian: {
+
+        nik: {
+          type: PatchType.PARAGRAPH,
+          children: [new TextRun({ text: nik, font: "Times New Roman" })],
+        },
+        alamat: {
+          type: PatchType.PARAGRAPH,
+          children: [new TextRun({ text: alamat, font: "Times New Roman" })],
+        },
+        bidang_usaha: {
           type: PatchType.PARAGRAPH,
           children: [
-            new TextRun({ text: hari_kematian, font: "Times New Roman" }),
+            new TextRun({ text: bidang_usaha, font: "Times New Roman" }),
           ],
         },
-        tanggal_kematian: {
+        nama_usaha: {
           type: PatchType.PARAGRAPH,
           children: [
-            new TextRun({ text: tanggal_kematian, font: "Times New Roman" }),
-          ],
-        },
-        pukul_kematian: {
-          type: PatchType.PARAGRAPH,
-          children: [
-            new TextRun({ text: pukul_kematian, font: "Times New Roman" }),
-          ],
-        },
-        tempat_kematian: {
-          type: PatchType.PARAGRAPH,
-          children: [
-            new TextRun({ text: tempat_kematian, font: "Times New Roman" }),
-          ],
-        },
-        penyebab_kematian: {
-          type: PatchType.PARAGRAPH,
-          children: [
-            new TextRun({ text: penyebab_kematian, font: "Times New Roman" }),
+            new TextRun({ text: nama_usaha, font: "Times New Roman" }),
           ],
         },
         tanggal_surat: {
@@ -159,12 +135,11 @@ export async function POST(req) {
       },
     });
 
-    // locally installed
     // const exportPath = path.join(
     //   process.cwd(),
     //   "public",
     //   "export",
-    //   `Surat Kematian - ${new Date().toISOString()} - ${nama}.docx`
+    //   `Surat Usaha - ${new Date().toISOString()} - ${nama}.docx`
     // );
 
     // fs.writeFile(exportPath, patchedDoc, (err) => {
@@ -172,25 +147,25 @@ export async function POST(req) {
     //   console.log("File written successfully!");
     // });
 
-    // Upload the patched document to Firebase Storage
-    const storageRef = ref(
-      storage,
-      `surat_kematian/Surat Kematian - ${new Date().toISOString()} - ${nama}.docx`
-    );
-    const uploadTask = uploadBytesResumable(storageRef, patchedDoc);
-    uploadTask.on("state_changed", {
-      next(snapshot) {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log(`Upload is ${progress}% done`);
-      },
-      error(error) {
-        console.error(error);
-      },
-      complete() {
-        console.log("Upload successful");
-      },
-    });
+     // Upload the patched document to Firebase Storage
+     const storageRef = ref(
+        storage,
+        `surat_usaha/Surat Usaha - ${new Date().toISOString()} - ${nama_lengkap}.docx`
+      );
+      const uploadTask = uploadBytesResumable(storageRef, patchedDoc);
+      uploadTask.on("state_changed", {
+        next(snapshot) {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`Upload is ${progress}% done`);
+        },
+        error(error) {
+          console.error(error);
+        },
+        complete() {
+          console.log("Upload successful");
+        },
+      });
 
     return NextResponse.json({ message: "Docs generated successfully" });
   } catch (error) {
