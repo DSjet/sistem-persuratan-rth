@@ -15,6 +15,7 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <Navbar />
         {children}
+        <script src="../../node_modules/flowbite/dist/flowbite.min.js"></script>
       </body>
     </html>
   );

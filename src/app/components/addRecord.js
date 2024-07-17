@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import db from "../../utils/firestore";
+import db from "../../../utils/firestore";
 import {
   collection,
   addDoc,

@@ -5,11 +5,15 @@ import { useRouter } from "next/navigation";
 import { app } from "../lib/firebaseConfig";
 import ListRecords from "./components/listRecords";
 import Link from "next/link";
+import Button from "./components/button/button";
+import CreateForm from "./components/createForm/createForm";
+import Input from "./components/input/input";
 
 function Home() {
   const auth = getAuth(app);
   const router = useRouter();
   const [user, setUser] = useState(null);
+  const [showCreateForm, setShowModal] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -33,25 +37,18 @@ function Home() {
   };
 
   return (
-    <div className="bg-white h-screen w-screen text-black flex flex-col justify-center items-center">
-      <h1>Dashboard</h1>
-      <Link
-        href="/tambah-surat"
-        className="bg-blue-500 text-white px-4 py-2 rounded"
-      >
-        {" "}
-        Tambah Surat
-      </Link>
-      <ListRecords />
-      {user && (
-        <button
-          onClick={handleLogout}
-          className="bg-red-500 text-white px-4 py-2 rounded"
-        >
-          Logout
-        </button>
-      )}
-      {/* <ListRecords /> */}
+    <div className="bg-white h-screen text-black m-5">
+      {showCreateForm && <CreateForm setShowModal={setShowModal} />}
+      <div className="flex gap-4 mb-5">
+        <Button
+          text="Buat Pengajuan"
+          className="w-40"
+          onClick={() => setShowModal(true)}
+        />
+        <Input name="name" type="text" className="my-2" placeholder="Filter" />
+      </div>
+
+      <ListRecords isHidden={showCreateForm} />
     </div>
   );
 }

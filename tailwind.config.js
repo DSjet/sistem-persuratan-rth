@@ -1,9 +1,13 @@
 /** @type {import('tailwindcss').Config} */
+import flowbite from "flowbite-react/tailwind";
+
 module.exports = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./node_modules/flowbite/**/*.{js}",
+    flowbite.content(),
   ],
   theme: {
     extend: {
@@ -18,8 +22,11 @@ module.exports = {
           500: "#487547",
           700: "#1A5319",
         },
+        orange: {
+          400: "#FFB23B",
+        },
       },
     },
   },
-  plugins: [],
+  plugins: [require("flowbite/plugin"), flowbite.plugin()],
 };

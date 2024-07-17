@@ -6,6 +6,9 @@ import { getAuth } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
 
+import { Carousel } from "flowbite-react";
+import Image from "next/image";
+
 export default function Masuk() {
   const [user, setUser] = useState(null);
   const router = useRouter();
@@ -46,15 +49,26 @@ export default function Masuk() {
 
   return (
     <main>
-      <h1>Masuk</h1>
-      {user ? (
-        <>
-          <p>Selamat datang, {user.displayName}</p>
-          <button onClick={handleLogout}>Keluar</button>
-        </>
-      ) : (
-        <button onClick={signInWithGoogle}>Masuk dengan Google</button>
-      )}
+      <div className="h-56 sm:h-64 xl:h-80 2xl:h-96 m-5">
+        <Carousel slideInterval={3000}>
+          <img src="/images/PEMERINTAH.png" alt="..." />
+          <img src="/images/PEMERINTAH_(1).png" alt="..." />
+          <img src="/images/JEMBATAN_GANTUNG_BATANG_LUBUH.png" alt="..." />
+          <img src="/images/slidekades.jpg" alt="..." />
+        </Carousel>
+      </div>
+
+      <div className="w-64 mx-auto" onClick={signInWithGoogle}>
+        <div className="p-2 flex gap-4 items-center justify-center outline-1 outline rounded-full">
+          <Image
+            src="/images/logo/Google.svg"
+            alt="home icon"
+            width={15}
+            height={15}
+          />
+          Masuk dengan Google
+        </div>
+      </div>
     </main>
   );
 }

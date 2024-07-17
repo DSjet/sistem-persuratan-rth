@@ -51,8 +51,8 @@ const Navbar = () => {
 
   return (
     <nav className="w-full bg-green-100 h-20">
-      <ul className="w-full flex py-5 items-center justify-between px-10 shadow-sm">
-        <li className="flex items-center">
+      <ul className="w-full flex items-center justify-between px-10 shadow-sm">
+        <li className="flex items-center py-5">
           <Link href="/">
             <Image
               src="/images/logo/logo_kabupaten_rokan_hulu.png"
@@ -65,7 +65,7 @@ const Navbar = () => {
         </li>
         {user ? (
           <li
-            className="static"
+            className="static py-5"
             onMouseEnter={() => setLogoutModal(true)}
             onMouseLeave={() => setLogoutModal(false)}
           >
@@ -95,7 +95,7 @@ const Navbar = () => {
             </div>
           </li>
         ) : (
-          <li>
+          <li className="py-5">
             <Button text={"Masuk"} onClick={signInWithGoogle} />
           </li>
         )}
