@@ -14,6 +14,7 @@ import {
   TextRun,
   VerticalAlign,
 } from "docx";
+import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
@@ -112,9 +113,7 @@ export async function POST(req) {
         },
         alamat: {
           type: PatchType.PARAGRAPH,
-          children: [
-            new TextRun({ text: alamat, font: "Times New Roman" }),
-          ],
+          children: [new TextRun({ text: alamat, font: "Times New Roman" })],
         },
         nik: {
           type: PatchType.PARAGRAPH,
@@ -143,23 +142,23 @@ export async function POST(req) {
 
     // Upload the patched document to Firebase Storage
     const storageRef = ref(
-        storage,
-        `surat_kurang_mampu/Surat Kurang Mampu - ${new Date().toISOString()} - ${nama_lengkap}.docx`
-      );
-      const uploadTask = uploadBytesResumable(storageRef, patchedDoc);
-      uploadTask.on("state_changed", {
-        next(snapshot) {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(`Upload is ${progress}% done`);
-        },
-        error(error) {
-          console.error(error);
-        },
-        complete() {
-          console.log("Upload successful");
-        },
-      });
+      storage,
+      `surat_kurang_mampu/Surat Kurang Mampu - ${new Date().toISOString()} - ${nama_lengkap}.docx`
+    );
+    const uploadTask = uploadBytesResumable(storageRef, patchedDoc);
+    uploadTask.on("state_changed", {
+      next(snapshot) {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log(`Upload is ${progress}% done`);
+      },
+      error(error) {
+        console.error(error);
+      },
+      complete() {
+        console.log("Upload successful");
+      },
+    });
 
     return NextResponse.json({ message: "Docs generated successfully" });
   } catch (error) {

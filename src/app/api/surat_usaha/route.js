@@ -14,6 +14,7 @@ import {
   TextRun,
   VerticalAlign,
 } from "docx";
+import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
