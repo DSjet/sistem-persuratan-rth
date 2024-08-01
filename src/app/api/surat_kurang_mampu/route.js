@@ -15,9 +15,11 @@ import {
   VerticalAlign,
 } from "docx";
 import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import { app } from "../../../lib/firebaseConfig";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
+  const storage = getStorage(app);
   const body = await req.json();
   const {
     tahun,

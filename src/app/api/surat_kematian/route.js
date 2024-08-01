@@ -15,7 +15,12 @@ import {
   VerticalAlign,
 } from "docx";
 import { NextResponse } from "next/server";
-import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
 import { app } from "../../../lib/firebaseConfig";
 
 export async function POST(req) {
@@ -178,6 +183,7 @@ export async function POST(req) {
       `surat_kematian/Surat Kematian - ${new Date().toISOString()} - ${nama}.docx`
     );
     const uploadTask = uploadBytesResumable(storageRef, patchedDoc);
+    let downloadURL = "";
     uploadTask.on("state_changed", {
       next(snapshot) {
         const progress =
@@ -189,10 +195,19 @@ export async function POST(req) {
       },
       complete() {
         console.log("Upload successful");
+        getDownloadURL(storageRef)
+          .then((url) => {
+            downloadURL = url;
+          })
+          .catch((error) => {
+            console.error(error);
+          });
       },
     });
 
-    return NextResponse.json({ message: "Docs generated successfully" });
+    return NextResponse.json({
+      message: "Docs generated successfully",
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "An error occurred" }, { status: 500 });
