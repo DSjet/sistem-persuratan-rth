@@ -17,28 +17,39 @@ import {
 import { NextResponse } from "next/server";
 import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { app } from "../../../lib/firebaseConfig";
+import moment from "moment";
+import "moment/locale/id";
 
 export async function POST(req) {
   const storage = getStorage(app);
 
   const body = await req.json();
-  const {
+  let {
     tahun,
     nomor_surat,
-    nama,
-    tempat_tanggal_lahir,
+    nama_lengkap,
+    tempat_lahir,
+    tanggal_lahir,
     pekerjaan,
     jenis_kelamin,
     agama,
     alamat_terakhir,
     umur,
-    hari_kematian,
-    tanggal_kematian,
-    pukul_kematian,
+    waktu_kematian,
     tempat_kematian,
     penyebab_kematian,
     tanggal_surat,
   } = body;
+
+  moment().locale("id");
+  let pukul_kematian = waktu_kematian.split("T")[1];
+  let tanggal_kematian = waktu_kematian.split("T")[0];
+  // set moment locale to id
+  const hari_kematian = moment(waktu_kematian).format("dddd");
+
+  // convert yyyy-mm-dd to dd-mm-yyyy date format using moment
+  tanggal_lahir = moment(tanggal_lahir).format("LL");
+  tanggal_kematian = moment(tanggal_kematian).format("LL");
 
   // Wrap the fs.readFile in a promise to use it with async/await
   const readFileAsync = (filePath) => {
@@ -67,8 +78,6 @@ export async function POST(req) {
       );
     }
 
-    console.log(req);
-
     const docTemplate = await readFileAsync(templatePath);
 
     const patchedDoc = await patchDocument(docTemplate, {
@@ -85,13 +94,15 @@ export async function POST(req) {
         },
         nama: {
           type: PatchType.PARAGRAPH,
-          children: [new TextRun({ text: nama, font: "Times New Roman" })],
+          children: [
+            new TextRun({ text: nama_lengkap, font: "Times New Roman" }),
+          ],
         },
         tempat_tanggal_lahir: {
           type: PatchType.PARAGRAPH,
           children: [
             new TextRun({
-              text: tempat_tanggal_lahir,
+              text: `${tempat_lahir}, ${tanggal_lahir}`,
               font: "Times New Roman",
             }),
           ],
@@ -175,7 +186,7 @@ export async function POST(req) {
     // Upload the patched document to Firebase Storage
     const storageRef = ref(
       storage,
-      `surat_kematian/Surat Kematian - ${new Date().toISOString()} - ${nama}.docx`
+      `surat_kematian/Surat Kematian - ${new Date().toISOString()} - ${nama_lengkap}.docx`
     );
     const uploadTask = uploadBytesResumable(storageRef, patchedDoc);
     uploadTask.on("state_changed", {

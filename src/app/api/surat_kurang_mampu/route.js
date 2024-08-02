@@ -15,14 +15,21 @@ import {
   VerticalAlign,
 } from "docx";
 import { NextResponse } from "next/server";
+import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import { app } from "../../../lib/firebaseConfig";
+import moment from "moment";
+import "moment/locale/id";
 
 export async function POST(req) {
+  const storage = getStorage(app);
+
   const body = await req.json();
-  const {
+  let {
     tahun,
     nomor_surat,
     nama_lengkap,
-    tempat_tanggal_lahir,
+    tempat_lahir,
+    tanggal_lahir,
     jenis_kelamin,
     kewarganegaraan,
     pekerjaan,
@@ -31,6 +38,8 @@ export async function POST(req) {
     nik,
     tanggal_surat,
   } = body;
+
+  tanggal_lahir = moment(tanggal_lahir).format("LL");
 
   // Wrap the fs.readFile in a promise to use it with async/await
   const readFileAsync = (filePath) => {
@@ -85,7 +94,7 @@ export async function POST(req) {
           type: PatchType.PARAGRAPH,
           children: [
             new TextRun({
-              text: tempat_tanggal_lahir,
+              text: `${tempat_lahir}, ${tanggal_lahir}`,
               font: "Times New Roman",
             }),
           ],
@@ -112,9 +121,7 @@ export async function POST(req) {
         },
         alamat: {
           type: PatchType.PARAGRAPH,
-          children: [
-            new TextRun({ text: alamat, font: "Times New Roman" }),
-          ],
+          children: [new TextRun({ text: alamat, font: "Times New Roman" })],
         },
         nik: {
           type: PatchType.PARAGRAPH,
@@ -143,23 +150,23 @@ export async function POST(req) {
 
     // Upload the patched document to Firebase Storage
     const storageRef = ref(
-        storage,
-        `surat_kurang_mampu/Surat Kurang Mampu - ${new Date().toISOString()} - ${nama_lengkap}.docx`
-      );
-      const uploadTask = uploadBytesResumable(storageRef, patchedDoc);
-      uploadTask.on("state_changed", {
-        next(snapshot) {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(`Upload is ${progress}% done`);
-        },
-        error(error) {
-          console.error(error);
-        },
-        complete() {
-          console.log("Upload successful");
-        },
-      });
+      storage,
+      `surat_kurang_mampu/Surat Kurang Mampu - ${new Date().toISOString()} - ${nama_lengkap}.docx`
+    );
+    const uploadTask = uploadBytesResumable(storageRef, patchedDoc);
+    uploadTask.on("state_changed", {
+      next(snapshot) {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log(`Upload is ${progress}% done`);
+      },
+      error(error) {
+        console.error(error);
+      },
+      complete() {
+        console.log("Upload successful");
+      },
+    });
 
     return NextResponse.json({ message: "Docs generated successfully" });
   } catch (error) {

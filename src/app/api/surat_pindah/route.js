@@ -1,24 +1,23 @@
 import * as fs from "fs";
 import * as path from "path";
 import {
-  ExternalHyperlink,
-  HeadingLevel,
-  ImageRun,
   Paragraph,
   patchDocument,
   PatchType,
-  Table,
   TableCell,
   TableRow,
-  TextDirection,
   TextRun,
-  VerticalAlign,
 } from "docx";
 import { NextResponse } from "next/server";
+import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import { app } from "../../../lib/firebaseConfig";
+import moment from "moment";
+import "moment/locale/id";
 
 export async function POST(req) {
+  const storage = getStorage(app);
   const body = await req.json();
-  const {
+  let {
     tahun,
     nomor_surat,
     nama_lengkap,
@@ -44,6 +43,25 @@ export async function POST(req) {
     tanggal_surat,
     pengikut_arr,
   } = body;
+
+  pengikut_arr = pengikut_arr.map((pengikut) => {
+    return {
+      nama_pengikut: pengikut.nama,
+      jenis_kelamin_pengikut: pengikut.jenis_kelamin,
+      tempat_lahir_pengikut: pengikut.tempat_lahir,
+      tanggal_lahir_pengikut: pengikut.tanggal_lahir,
+      ttl_pengikut: `${pengikut.tempat_lahir}, ${moment(
+        pengikut.tanggal_lahir
+      ).format("LL")}`,
+      nik_pengikut: pengikut.nik,
+      status_pengikut: pengikut.status,
+      pekerjaan_pengikut: pengikut.pekerjaan,
+      ket_pengikut: pengikut.ket,
+    };
+  });
+
+  tanggal_lahir = moment(tanggal_lahir).format("LL");
+  console.log("pengikut_arr", pengikut_arr);
 
   // Wrap the fs.readFile in a promise to use it with async/await
   const readFileAsync = (filePath) => {
@@ -152,9 +170,7 @@ export async function POST(req) {
         },
         desa_asal: {
           type: PatchType.PARAGRAPH,
-          children: [
-            new TextRun({ text: desa_asal, font: "Times New Roman" }),
-          ],
+          children: [new TextRun({ text: desa_asal, font: "Times New Roman" })],
         },
         kecamatan_asal: {
           type: PatchType.PARAGRAPH,
@@ -216,167 +232,207 @@ export async function POST(req) {
             new TextRun({ text: tanggal_surat, font: "Times New Roman" }),
           ],
         },
-        pengikut: { 
-            type: PatchType.DOCUMENT,
-            children:[
-                new TableRow({
-                    chilren:[
-                        new TableCell({
-                            children:[
-                                new Paragraph({
-                                    children:[
-                                        new TextRun({text: "No.", font: "Times New Roman"})
-                                    ]
-                                })
-                            ]
-                        }),
-                        new TableCell({
-                            children: [
-                                new Paragraph({
-                                    children:[
-                                        new TextRun({text: "Nama", font: "Times New Roman"})
-                                    ]
-                                })
-                            ]
-                        }),
-                        new TableCell({
-                            children: [
-                                new Paragraph({
-                                    children:[
-                                        new TextRun({text: "Jenis Kelamin", font: "Times New Roman"})
-                                    ]
-                                })
-                            ]
-                        }),
-                        new TableCell({
-                            children: [
-                                new Paragraph({
-                                    children:[
-                                        new TextRun({text: "TTL", font: "Times New Roman"})
-                                    ]
-                                })
-                            ]
-                        }),
-                        new TableCell({
-                            children: [
-                                new Paragraph({
-                                    children:[
-                                        new TextRun({text: "NIK", font: "Times New Roman"})
-                                    ]
-                                })
-                            ]
-                        }),
-                        new TableCell({
-                            children: [
-                                new Paragraph({
-                                    children:[
-                                        new TextRun({text: "Status", font: "Times New Roman"})
-                                    ]
-                                })
-                            ]
-                        }),
-                        new TableCell({
-                            pekerjaan: [
-                                new Paragraph({
-                                    children:[
-                                        new TextRun({text: "Pekerjaan", font: "Times New Roman"})
-                                    ]
-                                })
-                            ]
-                        }),
-                        new TableCell({
-                            children: [
-                                new Paragraph({
-                                    children:[
-                                        new TextRun({text: "Ket", font: "Times New Roman"})
-                                    ]
-                                })
-                            ]
-                        }),
-                    ]
+        pengikut: {
+          type: PatchType.DOCUMENT,
+          children: [
+            new TableRow({
+              children: [
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      children: [
+                        new TextRun({ text: "No.", font: "Times New Roman" }),
+                      ],
+                    }),
+                  ],
                 }),
-                ...pengikut_arr.map((pengikut, index) => {
-                    const { nama, jenis_kelamin, ttl, nik, status, pekerjaan, ket } = pengikut;
-                    return new TableRow({
-                        children:[
-                            new TableCell({
-                                children:[
-                                    new Paragraph({
-                                        children:[
-                                            new TextRun({text: index + 1, font: "Times New Roman"})
-                                        ]
-                                    })
-                                ]
-                            }),
-                            new TableCell({
-                                children: [
-                                    new Paragraph({
-                                        children:[
-                                            new TextRun({text: nama, font: "Times New Roman"})
-                                        ]
-                                    })
-                                ]
-                            }),
-                            new TableCell({
-                                children: [
-                                    new Paragraph({
-                                        children:[
-                                            new TextRun({text: jenis_kelamin, font: "Times New Roman"})
-                                        ]
-                                    })
-                                ]
-                            }),
-                            new TableCell({
-                                children: [
-                                    new Paragraph({
-                                        children:[
-                                            new TextRun({text: ttl, font: "Times New Roman"})
-                                        ]
-                                    })
-                                ]
-                            }),
-                            new TableCell({
-                                children: [
-                                    new Paragraph({
-                                        children:[
-                                            new TextRun({text: nik, font: "Times New Roman"})
-                                        ]
-                                    })
-                                ]
-                            }),
-                            new TableCell({
-                                children: [
-                                    new Paragraph({
-                                        children:[
-                                            new TextRun({text: status, font: "Times New Roman"})
-                                        ]
-                                    })
-                                ]
-                            }),
-                            new TableCell({
-                                children: [
-                                    new Paragraph({
-                                        children:[
-                                            new TextRun({text: pekerjaan, font: "Times New Roman"})
-                                        ]
-                                    })
-                                ]
-                            }),
-                            new TableCell({
-                                children: [
-                                    new Paragraph({
-                                        children:[
-                                            new TextRun({text: ket, font: "Times New Roman"})
-                                        ]
-                                    })
-                                ]
-                            }),
-                        ]
-                    })
-                })
-            ]
-        }
-        
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      children: [
+                        new TextRun({ text: "Nama", font: "Times New Roman" }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      children: [
+                        new TextRun({
+                          text: "Jenis Kelamin",
+                          font: "Times New Roman",
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      children: [
+                        new TextRun({ text: "TTL", font: "Times New Roman" }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      children: [
+                        new TextRun({ text: "NIK", font: "Times New Roman" }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      children: [
+                        new TextRun({
+                          text: "Status",
+                          font: "Times New Roman",
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  pekerjaan: [
+                    new Paragraph({
+                      children: [
+                        new TextRun({
+                          text: "Pekerjaan",
+                          font: "Times New Roman",
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                new TableCell({
+                  children: [
+                    new Paragraph({
+                      children: [
+                        new TextRun({ text: "Ket", font: "Times New Roman" }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            ...pengikut_arr.map((pengikut, index) => {
+              const {
+                nama_pengikut,
+                jenis_kelamin_pengikut,
+                ttl_pengikut,
+                nik_pengikut,
+                status_pengikut,
+                pekerjaan_pengikut,
+                ket_pengikut,
+              } = pengikut;
+              return new TableRow({
+                children: [
+                  new TableCell({
+                    children: [
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: index + 1,
+                            font: "Times New Roman",
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    children: [
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: nama_pengikut,
+                            font: "Times New Roman",
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    children: [
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: jenis_kelamin_pengikut,
+                            font: "Times New Roman",
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    children: [
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: ttl_pengikut,
+                            font: "Times New Roman",
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    children: [
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: nik_pengikut,
+                            font: "Times New Roman",
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    children: [
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: status_pengikut,
+                            font: "Times New Roman",
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    children: [
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: pekerjaan_pengikut,
+                            font: "Times New Roman",
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                  new TableCell({
+                    children: [
+                      new Paragraph({
+                        children: [
+                          new TextRun({
+                            text: ket_pengikut,
+                            font: "Times New Roman",
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                ],
+              });
+            }),
+          ],
+        },
       },
     });
 
@@ -394,23 +450,23 @@ export async function POST(req) {
 
     // Upload the patched document to Firebase Storage
     const storageRef = ref(
-        storage,
-        `surat_pindah/Surat Pindah - ${new Date().toISOString()} - ${nama_lengkap}.docx`
-      );
-      const uploadTask = uploadBytesResumable(storageRef, patchedDoc);
-      uploadTask.on("state_changed", {
-        next(snapshot) {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(`Upload is ${progress}% done`);
-        },
-        error(error) {
-          console.error(error);
-        },
-        complete() {
-          console.log("Upload successful");
-        },
-      });
+      storage,
+      `surat_pindah/Surat Pindah - ${new Date().toISOString()} - ${nama_lengkap}.docx`
+    );
+    const uploadTask = uploadBytesResumable(storageRef, patchedDoc);
+    uploadTask.on("state_changed", {
+      next(snapshot) {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log(`Upload is ${progress}% done`);
+      },
+      error(error) {
+        console.error(error);
+      },
+      complete() {
+        console.log("Upload successful");
+      },
+    });
 
     return NextResponse.json({ message: "Docs generated successfully" });
   } catch (error) {

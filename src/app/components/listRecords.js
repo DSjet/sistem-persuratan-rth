@@ -3,46 +3,43 @@
 
 import { useEffect, useState } from "react";
 import db from "../../../utils/firestore";
-import { collection, getDocs, doc, onSnapshot } from "firebase/firestore";
-import DeleteRecords from "./deleteRecord";
+import app from "../../../lib/firebaseConfig";
+import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
 import { Table, Pagination } from "flowbite-react";
+import { getAuth } from "firebase/auth";
+import Moment from "react-moment";
 
 const ListRecords = ({ isHidden = false }) => {
-  const [items, setItems] = useState([
-    {
-      id: 1,
-      name: "Surat Keterangan",
-      tanggal_pengajuan: "2022-10-10",
-      status: "Diterima",
-    },
-    {
-      id: 2,
-      name: "Surat Keterangan",
-      tanggal_pengajuan: "2022-10-10",
-      status: "Diproses",
-    },
-    {
-      id: 3,
-      name: "Surat Pindah",
-      tanggal_pengajuan: "2022-10-10",
-      status: "Ditolak",
-    },
-  ]);
-
+  const [pengajuans, setPengajuans] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-
   const onPageChange = (page) => setCurrentPage(page);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const fetchItems = async () => {
-      const querySnapshot = await getDocs(collection(db, "items"));
-      // setItems(
-      //   querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }))
-      // );
-    };
+    const auth = getAuth(app);
+    const unsubscribe = auth.onAuthStateChanged(async (localUser) => {
+      if (localUser) {
+        setUser(localUser);
+        const first = query(
+          collection(db, "pengajuans"),
+          where("user.id", "==", localUser.uid),
+          orderBy("tanggal_pengajuan")
+        );
 
-    fetchItems();
-  }, []);
+        const items = await getDocs(first);
+
+        setPengajuans(items.docs.map((doc) => doc.data()));
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  const fetchItems = async () => {
+    // get items where user.id, == user.id
+  };
 
   return (
     <div className={`${isHidden ? "invisible" : ""}`}>
@@ -58,27 +55,35 @@ const ListRecords = ({ isHidden = false }) => {
               </Table.HeadCell>
             </Table.Head>
             <Table.Body className="divide-y">
-              {items.map((item) => (
+              {pengajuans.map((item) => (
                 <Table.Row
+                  key={item.id}
                   className="bg-white dark:border-gray-700 dark:bg-gray-800 cursor-pointer"
                   id={item.id}
                 >
                   <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                    {item.name}
+                    {item.jenis_surat}
                   </Table.Cell>
-                  <Table.Cell>{item.tanggal_pengajuan}</Table.Cell>
+                  <Table.Cell>
+                    <Moment
+                      unix={true}
+                      locale="id"
+                      date={item.tanggal_pengajuan}
+                      format="Do MMMM YYYY"
+                    />
+                  </Table.Cell>
                   <Table.Cell className="text-white">
-                    {item.status === "Diterima" ? (
+                    {item.status === 1 ? (
                       <span className="bg-green-500 py-1 px-2 rounded-full">
-                        {item.status}
+                        {"Diterima"}
                       </span>
-                    ) : item.status === "Diproses" ? (
+                    ) : item.status === 0 ? (
                       <span className="bg-yellow-500 py-1 px-2 rounded-full">
-                        {item.status}
+                        {"Diajukan"}
                       </span>
                     ) : (
                       <span className="bg-red-500 py-1 px-2 rounded-full">
-                        {item.status}
+                        {"Ditolak"}
                       </span>
                     )}
                   </Table.Cell>
@@ -99,9 +104,11 @@ const ListRecords = ({ isHidden = false }) => {
       </div>
       <div className="flex overflow-x-auto sm:justify-center">
         <Pagination
+          layout="navigation"
           currentPage={currentPage}
-          totalPages={100}
+          totalPages={3}
           onPageChange={onPageChange}
+          showIcons
         />
       </div>
     </div>

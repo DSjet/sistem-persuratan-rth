@@ -1,28 +1,21 @@
 import * as fs from "fs";
 import * as path from "path";
-import {
-  ExternalHyperlink,
-  HeadingLevel,
-  ImageRun,
-  Paragraph,
-  patchDocument,
-  PatchType,
-  Table,
-  TableCell,
-  TableRow,
-  TextDirection,
-  TextRun,
-  VerticalAlign,
-} from "docx";
+import { patchDocument, PatchType, TextRun } from "docx";
 import { NextResponse } from "next/server";
+import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import { app } from "../../../lib/firebaseConfig";
+import moment from "moment";
+import "moment/locale/id";
 
 export async function POST(req) {
+  const storage = getStorage(app);
   const body = await req.json();
-  const {
+  let {
     tahun,
     nomor_surat,
-    nama,
-    tempat_tanggal_lahir,
+    nama_lengkap,
+    tempat_lahir,
+    tanggal_lahir,
     jenis_kelamin,
     kewarganegaraan,
     pekerjaan,
@@ -32,6 +25,10 @@ export async function POST(req) {
     nama_usaha,
     tanggal_surat,
   } = body;
+  console.log("nomor_surat", nomor_surat);
+  moment().locale("id");
+
+  tanggal_lahir = moment(tanggal_lahir).format("LL");
 
   // Wrap the fs.readFile in a promise to use it with async/await
   const readFileAsync = (filePath) => {
@@ -78,13 +75,15 @@ export async function POST(req) {
         },
         nama: {
           type: PatchType.PARAGRAPH,
-          children: [new TextRun({ text: nama, font: "Times New Roman" })],
+          children: [
+            new TextRun({ text: nama_lengkap, font: "Times New Roman" }),
+          ],
         },
         tempat_tanggal_lahir: {
           type: PatchType.PARAGRAPH,
           children: [
             new TextRun({
-              text: tempat_tanggal_lahir,
+              text: `${tempat_lahir}, ${tanggal_lahir}`,
               font: "Times New Roman",
             }),
           ],
@@ -147,25 +146,25 @@ export async function POST(req) {
     //   console.log("File written successfully!");
     // });
 
-     // Upload the patched document to Firebase Storage
-     const storageRef = ref(
-        storage,
-        `surat_usaha/Surat Usaha - ${new Date().toISOString()} - ${nama_lengkap}.docx`
-      );
-      const uploadTask = uploadBytesResumable(storageRef, patchedDoc);
-      uploadTask.on("state_changed", {
-        next(snapshot) {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log(`Upload is ${progress}% done`);
-        },
-        error(error) {
-          console.error(error);
-        },
-        complete() {
-          console.log("Upload successful");
-        },
-      });
+    // Upload the patched document to Firebase Storage
+    const storageRef = ref(
+      storage,
+      `surat_usaha/Surat Usaha - ${new Date().toISOString()} - ${nama_lengkap}.docx`
+    );
+    const uploadTask = uploadBytesResumable(storageRef, patchedDoc);
+    uploadTask.on("state_changed", {
+      next(snapshot) {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log(`Upload is ${progress}% done`);
+      },
+      error(error) {
+        console.error(error);
+      },
+      complete() {
+        console.log("Upload successful");
+      },
+    });
 
     return NextResponse.json({ message: "Docs generated successfully" });
   } catch (error) {
