@@ -1,6 +1,21 @@
 import * as fs from "fs";
 import * as path from "path";
-import { patchDocument, PatchType, TextRun } from "docx";
+import {
+  ExternalHyperlink,
+  HeadingLevel,
+  ImageRun,
+  Paragraph,
+  patchDocument,
+  PatchType,
+  Table,
+  TableCell,
+  TableRow,
+  TextDirection,
+  TextRun,
+  VerticalAlign,
+} from "docx";
+import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import { app } from "../../../lib/firebaseConfig";
 import { NextResponse } from "next/server";
 import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { app } from "../../../lib/firebaseConfig";
