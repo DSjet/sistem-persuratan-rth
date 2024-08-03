@@ -96,8 +96,6 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
         ket: data[`keterangan_pengikut_${i + 1}`],
       }));
 
-      console.log("data", data);
-
       // remove redundant data
       pengikut.forEach((_, index) => {
         delete data[`nama_pengikut_${index + 1}`];

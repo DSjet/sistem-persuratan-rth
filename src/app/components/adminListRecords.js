@@ -14,9 +14,11 @@ import {
   startAfter,
   where,
 } from "firebase/firestore";
-import { Table, Pagination } from "flowbite-react";
+import { Table, Spinner } from "flowbite-react";
 import { getAuth } from "firebase/auth";
 import moment from "moment";
+import Moment from "react-moment";
+import "moment/locale/id";
 
 const AdminListRecords = ({
   isHidden = false,
@@ -46,12 +48,14 @@ const AdminListRecords = ({
   const [itemPerPage, setItemPerPage] = useState(10);
   const [pageCount, setPageCount] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const auth = getAuth(app);
     const unsubscribe = auth.onAuthStateChanged(async (localUser) => {
       if (localUser) {
         setUser(localUser);
+        setIsLoading(true);
         // filter where tanggal_pengajuan is between startDate and endDate, and status is in selectedStatuses
         // then convert to int
 
@@ -67,8 +71,8 @@ const AdminListRecords = ({
             "status",
             "in",
             selectedStatuses.map((element) => element.value)
-          ),
-          limit(itemPerPage)
+          )
+          // limit(itemPerPage)
         );
 
         // get collection count
@@ -91,16 +95,14 @@ const AdminListRecords = ({
 
         setLastItem(items.docs[items.docs.length - 1]);
 
-        items = items.docs.map((doc) => doc.data());
-
-        setPengajuans(items);
-
-        const querySnapshot = await getDocs(q);
-
-        querySnapshot.forEach((doc) => {
-          items.push({ ...doc.data(), id: doc.id });
+        items = items.docs.map((doc) => {
+          return { ...doc.data(), id: doc.id };
         });
+        console.log(items);
+
         setPengajuans(items);
+
+        setIsLoading(false);
       } else {
         setUser(null);
       }
@@ -110,154 +112,148 @@ const AdminListRecords = ({
   }, [user, startDate, endDate, selectedStatuses]);
 
   const handleShowModal = (selectedItem) => {
+    console.log(selectedItem.id);
     setActiveItem(selectedItem);
     setShowViewModal(true);
   };
 
-  const handlePageChange = (page) => {
-    console.log(page, currentPage);
-    if (page > currentPage && page != pageCount / itemPerPage) {
-      handleNext();
-    } else if (page < currentPage && page != 1) {
-      handleBefore();
-    }
-    return setCurrentPage(page);
-  };
+  // const handlePageChange = (targetPage) => {
+  //   console.log(targetPage);
+  //   if (page > currentPage && page != pageCount / itemPerPage) {
+  //     handleNext();
+  //   } else if (page < currentPage && page != 1) {
+  //     handleBefore();
+  //   }
+  //   return setCurrentPage(page);
+  // };
 
-  const onPageChange = (page) => setCurrentPage(page);
+  // const handleNext = async () => {
+  //   const startTimestamp = moment(startDate).startOf("day").format("X");
 
-  const handleNext = async () => {
-    const startTimestamp = moment(startDate).startOf("day").format("X");
+  //   const endTimestamp = moment(endDate).endOf("day").format("X");
+  //   const q = query(
+  //     collection(db, "pengajuans"),
+  //     where("tanggal_pengajuan", ">=", startTimestamp),
+  //     where("tanggal_pengajuan", "<=", endTimestamp),
+  //     where(
+  //       "status",
+  //       "in",
+  //       selectedStatuses.map((element) => element.value)
+  //     ),
+  //     startAfter(lastItem)
+  //     // limit(itemPerPage)
+  //   );
 
-    const endTimestamp = moment(endDate).endOf("day").format("X");
-    const q = query(
-      collection(db, "pengajuans"),
-      where("tanggal_pengajuan", ">=", startTimestamp),
-      where("tanggal_pengajuan", "<=", endTimestamp),
-      where(
-        "status",
-        "in",
-        selectedStatuses.map((element) => element.value)
-      ),
-      startAfter(lastItem),
-      limit(itemPerPage)
-    );
+  //   let items = await getDocs(q);
 
-    let items = await getDocs(q);
+  //   setLastItem(items.docs[items.docs.length - 1]);
 
-    setLastItem(items.docs[items.docs.length - 1]);
+  //   setFirstItem(items.docs[0]);
 
-    setFirstItem(items.docs[0]);
+  //   items = items.docs.map((doc) => doc.data());
 
-    items = items.docs.map((doc) => doc.data());
+  //   setPengajuans(items);
+  // };
 
-    setPengajuans(items);
-  };
+  // const handleBefore = async () => {
+  //   const startTimestamp = moment(startDate).startOf("day").format("X");
 
-  const handleBefore = async () => {
-    const startTimestamp = moment(startDate).startOf("day").format("X");
+  //   const endTimestamp = moment(endDate).endOf("day").format("X");
 
-    const endTimestamp = moment(endDate).endOf("day").format("X");
+  //   const q = query(
+  //     collection(db, "pengajuans"),
+  //     where("tanggal_pengajuan", ">=", startTimestamp),
+  //     where("tanggal_pengajuan", "<=", endTimestamp),
+  //     where(
+  //       "status",
+  //       "in",
+  //       selectedStatuses.map((element) => element.value)
+  //     ),
+  //     endBefore(firstItem)
+  //     // limit(itemPerPage)
+  //   );
 
-    const q = query(
-      collection(db, "pengajuans"),
-      where("tanggal_pengajuan", ">=", startTimestamp),
-      where("tanggal_pengajuan", "<=", endTimestamp),
-      where(
-        "status",
-        "in",
-        selectedStatuses.map((element) => element.value)
-      ),
-      endBefore(firstItem),
-      limit(itemPerPage)
-    );
+  //   let items = await getDocs(q);
 
-    let items = await getDocs(q);
+  //   setFirstItem(items.docs[0]);
+  //   setLastItem(items.docs[items.docs.length - 1]);
 
-    setFirstItem(items.docs[0]);
-    setLastItem(items.docs[items.docs.length - 1]);
+  //   items = items.docs.map((doc) => doc.data());
+  //   console.log(items);
 
-    items = items.docs.map((doc) => doc.data());
-    console.log(items);
-
-    setPengajuans(items);
-  };
+  //   setPengajuans(items);
+  // };
 
   return (
     <div className={`${isHidden ? "invisible" : ""}`}>
       <div className="relative border w-full text-center p-4 -z-[0]">
         <div className="overflow-x-auto">
-          <Table className="">
-            <Table.Head>
-              <Table.HeadCell>Pengaju</Table.HeadCell>
-              <Table.HeadCell>Jenis Surat</Table.HeadCell>
-              <Table.HeadCell>Tanggal Pengajuan</Table.HeadCell>
-              <Table.HeadCell>Status</Table.HeadCell>
-              {/* <Table.HeadCell>Aksi</Table.HeadCell> */}
-            </Table.Head>
-            <Table.Body className="divide-y">
-              {pengajuans.map((item) => (
-                <Table.Row
-                  key={item.id}
-                  className="bg-white dark:border-gray-700 dark:bg-gray-800 cursor-pointer"
-                  id={item.id}
-                  onClick={() => handleShowModal(item)}
-                >
-                  <Table.Cell>{item.user.name}</Table.Cell>
-                  <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                    {item.jenis_surat}
-                  </Table.Cell>
-                  <Table.Cell>{item.tanggal_pengajuan}</Table.Cell>
-                  <Table.Cell className="text-white">
-                    {item.status === 1 ? (
-                      <span className="bg-green-500 py-1 px-2 rounded-full">
-                        {"Diterima"}
-                      </span>
-                    ) : item.status === 0 ? (
-                      <span className="bg-yellow-500 py-1 px-2 rounded-full">
-                        {"Diajukan"}
-                      </span>
-                    ) : (
-                      <span className="bg-red-500 py-1 px-2 rounded-full">
-                        {"Ditolak"}
-                      </span>
-                    )}
-                  </Table.Cell>
-                  {/* <Table.Cell className="flex items-center h-full my-auto">
-                    <Image
-                      src="/images/icons/Dell_fill.svg"
-                      alt="close icon"
-                      width={20}
-                      height={20}
-                      onClickP={(e) => {
-                        e.stopPropagation();
-                        handleReject(item.id);
-                      }}
-                    />
-                    <Image
-                      src="/images/icons/Check_round_fill.svg"
-                      alt="close icon"
-                      width={20}
-                      height={20}
-                      onClick={(e) => handleAccept(item.id)}
-                    />
-                  </Table.Cell> */}
-                </Table.Row>
-              ))}
-            </Table.Body>
-          </Table>
+          {!isLoading ? (
+            pengajuans.length ? (
+              <Table className="">
+                <Table.Head>
+                  <Table.HeadCell>Pengaju</Table.HeadCell>
+                  <Table.HeadCell>Jenis Surat</Table.HeadCell>
+                  <Table.HeadCell>Tanggal Pengajuan</Table.HeadCell>
+                  <Table.HeadCell>Status</Table.HeadCell>
+                </Table.Head>
+                <Table.Body className="divide-y">
+                  {pengajuans.map((item) => (
+                    <Table.Row
+                      key={item.id}
+                      className="bg-white dark:border-gray-700 dark:bg-gray-800 cursor-pointer"
+                      id={item.id}
+                      onClick={() => handleShowModal(item)}
+                    >
+                      <Table.Cell>{item.user.name}</Table.Cell>
+                      <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                        {item.jenis_surat}
+                      </Table.Cell>
+                      <Table.Cell>
+                        <Moment
+                          locale="id"
+                          date={new Date(
+                            parseInt(item.tanggal_pengajuan)
+                          ).toString()}
+                          format="DD MMMM YYYY"
+                        />
+                      </Table.Cell>
+                      <Table.Cell className="text-white">
+                        {item.status === 1 ? (
+                          <span className="bg-green-500 py-1 px-2 rounded-full">
+                            {"Diterima"}
+                          </span>
+                        ) : item.status === 0 ? (
+                          <span className="bg-yellow-500 py-1 px-2 rounded-full">
+                            {"Diajukan"}
+                          </span>
+                        ) : (
+                          <span className="bg-red-500 py-1 px-2 rounded-full">
+                            {"Ditolak"}
+                          </span>
+                        )}
+                      </Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
+            ) : (
+              <div className="text-center">No data</div>
+            )
+          ) : (
+            <Spinner aria-label="Default status example" />
+          )}
         </div>
       </div>
       <div className="flex overflow-x-auto sm:justify-center">
-        {pageCount && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={pageCount / itemPerPage}
-            onPageChange={onPageChange}
-            layout="navigation"
-            showIcons
-          />
-        )}
+        {/* {pageCount && ( */}
+        {/* <Pagination
+          // currentPage={currentPage}
+          // totalPages={pageCount / itemPerPage}
+          onPageChange={handlePageChange}
+          layout="navigation"
+        /> */}
+        {/* )} */}
       </div>
     </div>
   );

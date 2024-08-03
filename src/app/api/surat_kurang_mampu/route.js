@@ -150,10 +150,8 @@ export async function POST(req) {
     // });
 
     // Upload the patched document to Firebase Storage
-    const storageRef = ref(
-      storage,
-      `surat_kurang_mampu/Surat Kurang Mampu - ${new Date().toISOString()} - ${nama_lengkap}.docx`
-    );
+    const filePath = `surat_kurang_mampu/Surat Kurang Mampu - ${new Date().toISOString()} - ${nama_lengkap}.docx`;
+    const storageRef = ref(storage, filePath);
     const uploadTask = uploadBytesResumable(storageRef, patchedDoc);
     uploadTask.on("state_changed", {
       next(snapshot) {
@@ -169,7 +167,12 @@ export async function POST(req) {
       },
     });
 
-    return NextResponse.json({ message: "Docs generated successfully" });
+    return NextResponse.json({
+      message: "Docs generated successfully",
+      data: {
+        filePath: filePath,
+      },
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "An error occurred" }, { status: 500 });

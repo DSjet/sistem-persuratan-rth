@@ -6,9 +6,11 @@ const Input = ({
   type = "text",
   required = false,
   value = "",
+  disabled = false,
 }) => {
   return (
     <input
+      disabled={disabled}
       required={required}
       type={type}
       name={name}

@@ -7,9 +7,8 @@ import {
   TableCell,
   TableRow,
   TextRun,
+  Table,
 } from "docx";
-import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
-import { app } from "../../../lib/firebaseConfig";
 import { NextResponse } from "next/server";
 import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { app } from "../../../lib/firebaseConfig";
@@ -63,7 +62,6 @@ export async function POST(req) {
   });
 
   tanggal_lahir = moment(tanggal_lahir).format("LL");
-  console.log("pengikut_arr", pengikut_arr);
 
   // Wrap the fs.readFile in a promise to use it with async/await
   const readFileAsync = (filePath) => {
@@ -368,7 +366,7 @@ export async function POST(req) {
                           new Paragraph({
                             children: [
                               new TextRun({
-                                text: nama,
+                                text: nama_pengikut,
                                 font: "Times New Roman",
                               }),
                             ],
@@ -380,7 +378,7 @@ export async function POST(req) {
                           new Paragraph({
                             children: [
                               new TextRun({
-                                text: jenis_kelamin,
+                                text: jenis_kelamin_pengikut,
                                 font: "Times New Roman",
                               }),
                             ],
@@ -392,7 +390,7 @@ export async function POST(req) {
                           new Paragraph({
                             children: [
                               new TextRun({
-                                text: ttl,
+                                text: ttl_pengikut,
                                 font: "Times New Roman",
                               }),
                             ],
@@ -404,7 +402,7 @@ export async function POST(req) {
                           new Paragraph({
                             children: [
                               new TextRun({
-                                text: nik,
+                                text: nik_pengikut,
                                 font: "Times New Roman",
                               }),
                             ],
@@ -416,7 +414,7 @@ export async function POST(req) {
                           new Paragraph({
                             children: [
                               new TextRun({
-                                text: status,
+                                text: status_pengikut,
                                 font: "Times New Roman",
                               }),
                             ],
@@ -428,7 +426,7 @@ export async function POST(req) {
                           new Paragraph({
                             children: [
                               new TextRun({
-                                text: pekerjaan,
+                                text: pekerjaan_pengikut,
                                 font: "Times New Roman",
                               }),
                             ],
@@ -440,7 +438,7 @@ export async function POST(req) {
                           new Paragraph({
                             children: [
                               new TextRun({
-                                text: ket,
+                                text: ket_pengikut,
                                 font: "Times New Roman",
                               }),
                             ],
@@ -470,10 +468,9 @@ export async function POST(req) {
     // });
 
     // Upload the patched document to Firebase Storage
-    const storageRef = ref(
-      storage,
-      `surat_pindah/Surat Pindah - ${new Date().toISOString()} - ${nama_lengkap}.docx`
-    );
+    const filePath = `surat_kematian/Surat Kematian - ${new Date().toISOString()} - ${nama_lengkap}.docx`;
+
+    const storageRef = ref(storage, filePath);
     const uploadTask = uploadBytesResumable(storageRef, patchedDoc);
     uploadTask.on("state_changed", {
       next(snapshot) {
@@ -489,7 +486,12 @@ export async function POST(req) {
       },
     });
 
-    return NextResponse.json({ message: "Docs generated successfully" });
+    return NextResponse.json({
+      message: "Docs generated successfully",
+      data: {
+        filePath: filePath,
+      },
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "An error occurred" }, { status: 500 });

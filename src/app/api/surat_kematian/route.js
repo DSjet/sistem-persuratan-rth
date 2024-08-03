@@ -1,19 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import {
-  ExternalHyperlink,
-  HeadingLevel,
-  ImageRun,
-  Paragraph,
-  patchDocument,
-  PatchType,
-  Table,
-  TableCell,
-  TableRow,
-  TextDirection,
-  TextRun,
-  VerticalAlign,
-} from "docx";
+import { patchDocument, PatchType, TextRun } from "docx";
 import { NextResponse } from "next/server";
 import {
   getStorage,
@@ -189,10 +176,8 @@ export async function POST(req) {
     // });
 
     // Upload the patched document to Firebase Storage
-    const storageRef = ref(
-      storage,
-      `surat_kematian/Surat Kematian - ${new Date().toISOString()} - ${nama_lengkap}.docx`
-    );
+    const filePath = `surat_kematian/Surat Kematian - ${new Date().toISOString()} - ${nama_lengkap}.docx`;
+    const storageRef = ref(storage, filePath);
     const uploadTask = uploadBytesResumable(storageRef, patchedDoc);
     let downloadURL = "";
     uploadTask.on("state_changed", {
@@ -208,16 +193,23 @@ export async function POST(req) {
         console.log("Upload successful");
         getDownloadURL(storageRef)
           .then((url) => {
+            console.log(url);
             downloadURL = url;
           })
           .catch((error) => {
             console.error(error);
+            return NextResponse.json(
+              { error: "An error occurred" },
+              { status: 500 }
+            );
           });
       },
     });
-
     return NextResponse.json({
       message: "Docs generated successfully",
+      data: {
+        filePath: filePath,
+      },
     });
   } catch (error) {
     console.error(error);

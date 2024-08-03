@@ -8,6 +8,7 @@ import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
 import { Table, Pagination } from "flowbite-react";
 import { getAuth } from "firebase/auth";
 import Moment from "react-moment";
+import "moment/locale/id";
 
 const ListRecords = ({ isHidden = false }) => {
   const [pengajuans, setPengajuans] = useState([]);
@@ -55,61 +56,46 @@ const ListRecords = ({ isHidden = false }) => {
               </Table.HeadCell>
             </Table.Head>
             <Table.Body className="divide-y">
-              {pengajuans.map((item) => (
-                <Table.Row
-                  key={item.id}
-                  className="bg-white dark:border-gray-700 dark:bg-gray-800 cursor-pointer"
-                  id={item.id}
-                >
-                  <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                    {item.jenis_surat}
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Moment
-                      unix={true}
-                      locale="id"
-                      date={item.tanggal_pengajuan}
-                      format="Do MMMM YYYY"
-                    />
-                  </Table.Cell>
-                  <Table.Cell className="text-white">
-                    {item.status === 1 ? (
-                      <span className="bg-green-500 py-1 px-2 rounded-full">
-                        {"Diterima"}
-                      </span>
-                    ) : item.status === 0 ? (
-                      <span className="bg-yellow-500 py-1 px-2 rounded-full">
-                        {"Diajukan"}
-                      </span>
-                    ) : (
-                      <span className="bg-red-500 py-1 px-2 rounded-full">
-                        {"Ditolak"}
-                      </span>
-                    )}
-                  </Table.Cell>
-                </Table.Row>
-              ))}
+              {pengajuans.map((item) => {
+                return (
+                  <Table.Row
+                    key={item.id}
+                    className="bg-white dark:border-gray-700 dark:bg-gray-800 cursor-pointer"
+                    id={item.id}
+                  >
+                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                      {item.jenis_surat}
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Moment
+                        locale="id"
+                        date={new Date(
+                          parseInt(item.tanggal_pengajuan)
+                        ).toString()}
+                        format="DD MMMM YYYY"
+                      />
+                    </Table.Cell>
+                    <Table.Cell className="text-white">
+                      {item.status === 1 ? (
+                        <span className="bg-green-500 py-1 px-2 rounded-full">
+                          {"Diterima"}
+                        </span>
+                      ) : item.status === 0 ? (
+                        <span className="bg-yellow-500 py-1 px-2 rounded-full">
+                          {"Diajukan"}
+                        </span>
+                      ) : (
+                        <span className="bg-red-500 py-1 px-2 rounded-full">
+                          {"Ditolak"}
+                        </span>
+                      )}
+                    </Table.Cell>
+                  </Table.Row>
+                );
+              })}
             </Table.Body>
           </Table>
         </div>
-
-        {/* <ul>
-        {items.map((item) => (
-          <li key={item.id} className="border-t-2 p-2">
-            <p>{item.name}</p>
-            <DeleteRecords id={item.id} />
-          </li>
-        ))}
-      </ul> */}
-      </div>
-      <div className="flex overflow-x-auto sm:justify-center">
-        <Pagination
-          layout="navigation"
-          currentPage={currentPage}
-          totalPages={3}
-          onPageChange={onPageChange}
-          showIcons
-        />
       </div>
     </div>
   );

@@ -60,6 +60,8 @@ function Home() {
         <ViewModal setShowModal={setShowViewModal} activeItem={activeItem} />
       )}
 
+      <p className="leading-5 mb-2">Filter</p>
+
       <Select
         isMulti={true}
         defaultValue={selectedOptions}
@@ -75,7 +77,7 @@ function Home() {
         maxDate={dateEnd}
       />
       <Datepicker
-        className={`${showViewModal ? "invisible" : ""}`}
+        className={`${showViewModal ? "invisible" : ""} mb-10`}
         onSelectedDateChanged={setDateEnd}
         minDate={dateStart}
       />
