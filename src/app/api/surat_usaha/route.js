@@ -17,15 +17,20 @@ import {
 import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { app } from "../../../lib/firebaseConfig";
 import { NextResponse } from "next/server";
+import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import { app } from "../../../lib/firebaseConfig";
+import moment from "moment";
+import "moment/locale/id";
 
 export async function POST(req) {
   const storage = getStorage(app);
   const body = await req.json();
-  const {
+  let {
     tahun,
     nomor_surat,
-    nama,
-    tempat_tanggal_lahir,
+    nama_lengkap,
+    tempat_lahir,
+    tanggal_lahir,
     jenis_kelamin,
     kewarganegaraan,
     pekerjaan,
@@ -35,6 +40,10 @@ export async function POST(req) {
     nama_usaha,
     tanggal_surat,
   } = body;
+  console.log("nomor_surat", nomor_surat);
+  moment().locale("id");
+
+  tanggal_lahir = moment(tanggal_lahir).format("LL");
 
   // Wrap the fs.readFile in a promise to use it with async/await
   const readFileAsync = (filePath) => {
@@ -81,13 +90,15 @@ export async function POST(req) {
         },
         nama: {
           type: PatchType.PARAGRAPH,
-          children: [new TextRun({ text: nama, font: "Times New Roman" })],
+          children: [
+            new TextRun({ text: nama_lengkap, font: "Times New Roman" }),
+          ],
         },
         tempat_tanggal_lahir: {
           type: PatchType.PARAGRAPH,
           children: [
             new TextRun({
-              text: tempat_tanggal_lahir,
+              text: `${tempat_lahir}, ${tanggal_lahir}`,
               font: "Times New Roman",
             }),
           ],
@@ -151,10 +162,9 @@ export async function POST(req) {
     // });
 
     // Upload the patched document to Firebase Storage
-    const storageRef = ref(
-      storage,
-      `surat_usaha/Surat Usaha - ${new Date().toISOString()} - ${nama_lengkap}.docx`
-    );
+    const filePath = `surat_usaha/Surat Usaha - ${new Date().toISOString()} - ${nama_lengkap}.docx`;
+
+    const storageRef = ref(storage, filePath);
     const uploadTask = uploadBytesResumable(storageRef, patchedDoc);
     uploadTask.on("state_changed", {
       next(snapshot) {
@@ -170,7 +180,12 @@ export async function POST(req) {
       },
     });
 
-    return NextResponse.json({ message: "Docs generated successfully" });
+    return NextResponse.json({
+      message: "Docs generated successfully",
+      data: {
+        filePath: filePath,
+      },
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "An error occurred" }, { status: 500 });

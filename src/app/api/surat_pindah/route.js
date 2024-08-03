@@ -1,27 +1,24 @@
 import * as fs from "fs";
 import * as path from "path";
 import {
-  ExternalHyperlink,
-  HeadingLevel,
-  ImageRun,
   Paragraph,
   patchDocument,
   PatchType,
-  Table,
   TableCell,
   TableRow,
-  TextDirection,
   TextRun,
-  VerticalAlign,
+  Table,
 } from "docx";
+import { NextResponse } from "next/server";
 import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { app } from "../../../lib/firebaseConfig";
-import { NextResponse } from "next/server";
+import moment from "moment";
+import "moment/locale/id";
 
 export async function POST(req) {
   const storage = getStorage(app);
   const body = await req.json();
-  const {
+  let {
     tahun,
     nomor_surat,
     nama_lengkap,
@@ -47,6 +44,24 @@ export async function POST(req) {
     tanggal_surat,
     pengikut_arr,
   } = body;
+
+  pengikut_arr = pengikut_arr.map((pengikut) => {
+    return {
+      nama_pengikut: pengikut.nama,
+      jenis_kelamin_pengikut: pengikut.jenis_kelamin,
+      tempat_lahir_pengikut: pengikut.tempat_lahir,
+      tanggal_lahir_pengikut: pengikut.tanggal_lahir,
+      ttl_pengikut: `${pengikut.tempat_lahir}, ${moment(
+        pengikut.tanggal_lahir
+      ).format("LL")}`,
+      nik_pengikut: pengikut.nik,
+      status_pengikut: pengikut.status,
+      pekerjaan_pengikut: pengikut.pekerjaan,
+      ket_pengikut: pengikut.ket,
+    };
+  });
+
+  tanggal_lahir = moment(tanggal_lahir).format("LL");
 
   // Wrap the fs.readFile in a promise to use it with async/await
   const readFileAsync = (filePath) => {
@@ -324,13 +339,13 @@ export async function POST(req) {
                 }),
                 ...pengikut_arr.map((pengikut, index) => {
                   const {
-                    nama,
-                    jenis_kelamin,
-                    ttl,
-                    nik,
-                    status,
-                    pekerjaan,
-                    ket,
+                    nama_pengikut,
+                    jenis_kelamin_pengikut,
+                    ttl_pengikut,
+                    nik_pengikut,
+                    status_pengikut,
+                    pekerjaan_pengikut,
+                    ket_pengikut,
                   } = pengikut;
                   return new TableRow({
                     children: [
@@ -351,7 +366,7 @@ export async function POST(req) {
                           new Paragraph({
                             children: [
                               new TextRun({
-                                text: nama,
+                                text: nama_pengikut,
                                 font: "Times New Roman",
                               }),
                             ],
@@ -363,7 +378,7 @@ export async function POST(req) {
                           new Paragraph({
                             children: [
                               new TextRun({
-                                text: jenis_kelamin,
+                                text: jenis_kelamin_pengikut,
                                 font: "Times New Roman",
                               }),
                             ],
@@ -375,7 +390,7 @@ export async function POST(req) {
                           new Paragraph({
                             children: [
                               new TextRun({
-                                text: ttl,
+                                text: ttl_pengikut,
                                 font: "Times New Roman",
                               }),
                             ],
@@ -387,7 +402,7 @@ export async function POST(req) {
                           new Paragraph({
                             children: [
                               new TextRun({
-                                text: nik,
+                                text: nik_pengikut,
                                 font: "Times New Roman",
                               }),
                             ],
@@ -399,7 +414,7 @@ export async function POST(req) {
                           new Paragraph({
                             children: [
                               new TextRun({
-                                text: status,
+                                text: status_pengikut,
                                 font: "Times New Roman",
                               }),
                             ],
@@ -411,7 +426,7 @@ export async function POST(req) {
                           new Paragraph({
                             children: [
                               new TextRun({
-                                text: pekerjaan,
+                                text: pekerjaan_pengikut,
                                 font: "Times New Roman",
                               }),
                             ],
@@ -423,7 +438,7 @@ export async function POST(req) {
                           new Paragraph({
                             children: [
                               new TextRun({
-                                text: ket,
+                                text: ket_pengikut,
                                 font: "Times New Roman",
                               }),
                             ],
@@ -453,10 +468,9 @@ export async function POST(req) {
     // });
 
     // Upload the patched document to Firebase Storage
-    const storageRef = ref(
-      storage,
-      `surat_pindah/Surat Pindah - ${new Date().toISOString()} - ${nama_lengkap}.docx`
-    );
+    const filePath = `surat_kematian/Surat Kematian - ${new Date().toISOString()} - ${nama_lengkap}.docx`;
+
+    const storageRef = ref(storage, filePath);
     const uploadTask = uploadBytesResumable(storageRef, patchedDoc);
     uploadTask.on("state_changed", {
       next(snapshot) {
@@ -472,7 +486,12 @@ export async function POST(req) {
       },
     });
 
-    return NextResponse.json({ message: "Docs generated successfully" });
+    return NextResponse.json({
+      message: "Docs generated successfully",
+      data: {
+        filePath: filePath,
+      },
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "An error occurred" }, { status: 500 });
