@@ -1,3 +1,5 @@
+"use client";
+
 import db from "../../../../utils/firestore";
 import { collection, doc, updateDoc } from "@firebase/firestore";
 import Overlay from "../overlay/overlay";
@@ -89,7 +91,7 @@ const ViewModal = ({ setShowModal, activeItem }) => {
   const handleReject = async () => {
     try {
       // update current item's status to DITOLAK
-      const docRef = updateDoc(doc(db, "pengajuans", activeItem.id), {
+      const docRef = updateDoc(doc(db, "pengajuans", activeItem?.id), {
         status: statusPengajuan.DITOLAK,
       });
 
@@ -105,7 +107,7 @@ const ViewModal = ({ setShowModal, activeItem }) => {
     activeItem["nomor_surat"] = e.target.nomor_surat.value;
     try {
       // update current item's status to DITOLAK
-      const docRef = await updateDoc(doc(db, "pengajuans", activeItem.id), {
+      const docRef = await updateDoc(doc(db, "pengajuans", activeItem?.id), {
         status: statusPengajuan.DITERIMA,
       });
       console.log("Document written with ID: ", docRef.id);
@@ -122,7 +124,7 @@ const ViewModal = ({ setShowModal, activeItem }) => {
 
     activeItem["tahun"] = new Date().getFullYear().toString();
 
-    const endpoint = endpointMaps[activeItem.jenis_surat];
+    const endpoint = endpointMaps[activeItem?.jenis_surat];
     // call localhost:3000/api/surat_kematian api using fetch function
     fetch(`http://localhost:3000/api/${endpoint}`, {
       method: "POST",
@@ -134,7 +136,7 @@ const ViewModal = ({ setShowModal, activeItem }) => {
       .then((response) => response.json())
       .then(async (data) => {
         console.log("Success:", data);
-        const docRef = await updateDoc(doc(db, "pengajuans", activeItem.id), {
+        const docRef = await updateDoc(doc(db, "pengajuans", activeItem?.id), {
           filePath: data.data.filePath,
         });
       })
@@ -149,7 +151,7 @@ const ViewModal = ({ setShowModal, activeItem }) => {
 
   const handleDownloadFile = async () => {
     const storage = getStorage(app);
-    const storageRef = ref(storage, activeItem.filePath);
+    const storageRef = ref(storage, activeItem?.filePath);
     console.log(activeItem);
     const downloadURL = await getDownloadURL(storageRef);
     window.open(downloadURL, "_blank");
@@ -180,13 +182,13 @@ const ViewModal = ({ setShowModal, activeItem }) => {
           </div>
           <form className="w-full" onSubmit={handleAccept}>
             <div className="text-md font-semibold">Pengajuan</div>
-            {activeItem.jenis_surat == "Surat Keterangan Pindah"
-              ? kolomSurat["Surat Keterangan Pindah"].map((key, idx) => {
+            {activeItem?.jenis_surat == "Surat Keterangan Pindah"
+              ? kolomSurat["Surat Keterangan Pindah"]?.map((key, idx) => {
                   if (key.key == "pengikut_arr") {
                     return (
                       <div className="items-center mb-4" key={idx}>
                         {activeItem["pengikut_arr"].map((item, index) => {
-                          return kolomPengikut.map((column) => {
+                          return kolomPengikut?.map((column) => {
                             return (
                               <div className="gap-4 my-2" key={index}>
                                 <small>
@@ -223,7 +225,7 @@ const ViewModal = ({ setShowModal, activeItem }) => {
                     </div>
                   );
                 })
-              : kolomSurat[activeItem.jenis_surat].map((key, idx) => {
+              : kolomSurat[activeItem?.jenis_surat]?.map((key, idx) => {
                   return (
                     <div className="items-center mb-4" key={idx}>
                       <small>{key.label}</small>
@@ -269,7 +271,7 @@ const ViewModal = ({ setShowModal, activeItem }) => {
               className="my-2"
               placeholder="Nomor Surat"
             />
-            {activeItem.status == 0 ? (
+            {activeItem?.status == 0 ? (
               <div className="flex gap-4">
                 <Button
                   onClick={handleReject}
@@ -284,7 +286,7 @@ const ViewModal = ({ setShowModal, activeItem }) => {
                   disabled={isLoading}
                 />
               </div>
-            ) : activeItem.status == 1 ? (
+            ) : activeItem?.status == 1 ? (
               <Button
                 text="Unduh Surat"
                 variation="primary"

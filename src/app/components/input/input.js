@@ -1,4 +1,6 @@
-const Input = ({
+"use client";
+
+const Input = ({  
   onChange = () => {},
   placeholder = "",
   className = "",
