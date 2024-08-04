@@ -1,3 +1,5 @@
+"use client";
+
 const Filter = ({ filter, setFilter }) => {
   return (
     <div>
@@ -9,3 +11,5 @@ const Filter = ({ filter, setFilter }) => {
     </div>
   );
 };
+
+export default Filter;
