@@ -14,7 +14,11 @@ import {
   TextRun,
   VerticalAlign,
 } from "docx";
-import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+} from "firebase/storage";
 import { NextResponse } from "next/server";
 import app from "../../../lib/firebaseConfig";
 import moment from "moment";
@@ -163,19 +167,8 @@ export async function POST(req) {
     const filePath = `surat_usaha/Surat Usaha - ${new Date().toISOString()} - ${nama_lengkap}.docx`;
 
     const storageRef = ref(storage, filePath);
-    const uploadTask = uploadBytesResumable(storageRef, patchedDoc);
-    uploadTask.on("state_changed", {
-      next(snapshot) {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log(`Upload is ${progress}% done`);
-      },
-      error(error) {
-        console.error(error);
-      },
-      complete() {
-        console.log("Upload successful");
-      },
+    uploadBytes(storageRef, patchedDoc).then((snapshot) => {
+      console.log("Uploaded a blob or file!", snapshot);
     });
 
     return NextResponse.json({
