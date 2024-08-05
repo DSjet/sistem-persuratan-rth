@@ -10,11 +10,7 @@ import {
   Table,
 } from "docx";
 import { NextResponse } from "next/server";
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-} from "firebase/storage";
+import { getStorage, ref, uploadBytes } from "firebase/storage";
 import { app } from "../../../lib/firebaseConfig";
 import moment from "moment";
 import "moment/locale/id";
@@ -479,9 +475,14 @@ export async function POST(req) {
     const filePath = `surat_pindah/Surat Pindah - ${new Date().toISOString()} - ${nama_lengkap}.docx`;
 
     const storageRef = ref(storage, filePath);
-    await uploadBytes(storageRef, patchedDoc).then((snapshot) => {
-      console.log("Uploaded a blob or file!", snapshot);
-    });
+    await uploadBytes(storageRef, patchedDoc)
+      .then((snapshot) => {
+        console.log("Uploaded a blob or file!", snapshot);
+      })
+      .catch((err) => {
+        console.error(err);
+        throw new Error("Failed to upload the document");
+      });
 
     return NextResponse.json({
       message: "Docs generated successfully",

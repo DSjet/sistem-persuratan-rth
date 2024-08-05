@@ -183,9 +183,13 @@ export async function POST(req) {
     // Upload the patched document to Firebase Storage
     const filePath = `surat_kematian/Surat Kematian - ${new Date().toISOString()} - ${nama_lengkap}.docx`;
     const storageRef = ref(storage, filePath);
-    await uploadBytes(storageRef, patchedDoc).then((snapshot) => {
-      console.log("Uploaded a blob or file!");
-    });
+    await uploadBytes(storageRef, patchedDoc)
+      .then((snapshot) => {
+        console.log("Uploaded a blob or file!");
+      })
+      .catch((error) => {
+        console.error(error);
+      });
 
     return NextResponse.json({
       message: "Docs generated successfully",

@@ -167,9 +167,13 @@ export async function POST(req) {
     const filePath = `surat_usaha/Surat Usaha - ${new Date().toISOString()} - ${nama_lengkap}.docx`;
 
     const storageRef = ref(storage, filePath);
-    await uploadBytes(storageRef, patchedDoc).then((snapshot) => {
-      console.log("Uploaded a blob or file!", snapshot);
-    });
+    await uploadBytes(storageRef, patchedDoc)
+      .then((snapshot) => {
+        console.log("Uploaded a blob or file!", snapshot);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
 
     return NextResponse.json({
       message: "Docs generated successfully",
