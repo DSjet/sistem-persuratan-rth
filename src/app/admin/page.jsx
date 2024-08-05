@@ -46,15 +46,6 @@ function Home() {
     },
   ];
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      router.push("/masuk");
-    } catch (error) {
-      console.error("Error signing out", error);
-    }
-  };
-
   return (
     <div className="bg-white text-black m-5">
       {showViewModal && (
