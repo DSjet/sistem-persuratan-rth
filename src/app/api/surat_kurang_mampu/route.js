@@ -135,6 +135,10 @@ export async function POST(req) {
       },
     });
 
+    if (!patchedDoc) {
+      throw new Error("Failed to patch the document");
+    }
+
     // const exportPath = path.join(
     //   process.cwd(),
     //   "public",

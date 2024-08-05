@@ -14,11 +14,7 @@ import {
   TextRun,
   VerticalAlign,
 } from "docx";
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-} from "firebase/storage";
+import { getStorage, ref, uploadBytes } from "firebase/storage";
 import { NextResponse } from "next/server";
 import app from "../../../lib/firebaseConfig";
 import moment from "moment";
@@ -150,6 +146,10 @@ export async function POST(req) {
         },
       },
     });
+
+    if (!patchedDoc) {
+      throw new Error("Failed to patch the document");
+    }
 
     // const exportPath = path.join(
     //   process.cwd(),
