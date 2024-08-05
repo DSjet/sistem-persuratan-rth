@@ -167,7 +167,7 @@ export async function POST(req) {
     const filePath = `surat_usaha/Surat Usaha - ${new Date().toISOString()} - ${nama_lengkap}.docx`;
 
     const storageRef = ref(storage, filePath);
-    uploadBytes(storageRef, patchedDoc).then((snapshot) => {
+    await uploadBytes(storageRef, patchedDoc).then((snapshot) => {
       console.log("Uploaded a blob or file!", snapshot);
     });
 
