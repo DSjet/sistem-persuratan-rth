@@ -75,30 +75,11 @@ const AdminListRecords = ({
           // limit(itemPerPage)
         );
 
-        // get collection count
-        const countQuery = query(
-          collection(db, "pengajuans"),
-          where("tanggal_pengajuan", ">=", startTimestamp),
-          where("tanggal_pengajuan", "<=", endTimestamp),
-          where(
-            "status",
-            "in",
-            selectedStatuses.map((element) => element.value)
-          )
-        );
-
-        const count = await getCountFromServer(countQuery);
-
-        setPageCount(count);
-
         items = await getDocs(q);
-
-        setLastItem(items.docs[items.docs.length - 1]);
 
         items = items.docs.map((doc) => {
           return { ...doc.data(), id: doc.id };
         });
-        console.log(items);
 
         setPengajuans(items);
 

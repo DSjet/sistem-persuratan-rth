@@ -9,38 +9,91 @@ import Button from "./components/button/button";
 import CreateForm from "./components/createForm/createForm";
 import Input from "./components/input/input";
 
+import Select from "react-select";
+import { Datepicker } from "flowbite-react";
+
 function Home() {
   const auth = getAuth(app);
   const router = useRouter();
   const [showCreateForm, setShowModal] = useState(false);
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      router.push("/masuk");
-    } catch (error) {
-      console.error("Error signing out", error);
-    }
-  };
+  const [activeItem, setActiveItem] = useState(null);
+  const [selectedOptions, setSelectedOptions] = useState([
+    {
+      value: 0,
+      label: "Diajukan",
+    },
+    {
+      value: 1,
+      label: "Diterima",
+    },
+    {
+      value: 2,
+      label: "Ditolak",
+    },
+  ]);
+
+  const [dateStart, setDateStart] = useState(new Date());
+  const [dateEnd, setDateEnd] = useState(new Date());
+
+  const options = [
+    {
+      value: 0,
+      label: "Diajukan",
+    },
+    {
+      value: 1,
+      label: "Diterima",
+    },
+    {
+      value: 2,
+      label: "Ditolak",
+    },
+  ];
 
   return (
     <div className="bg-white text-black m-5">
       {showCreateForm && <CreateForm setShowModal={setShowModal} />}
+
+      <p className="leading-5 mb-2">Filter</p>
+
+      <div className="mb-2 gap-2">
+        <Select
+          isMulti={true}
+          defaultValue={selectedOptions}
+          options={options}
+          onChange={setSelectedOptions}
+          isSearchable={false}
+          className={`${showCreateForm ? "invisible" : ""} mb-3`}
+        />
+        <Datepicker
+          className={`${showCreateForm ? "invisible" : ""}`}
+          onSelectedDateChanged={setDateStart}
+          maxDate={dateEnd}
+        />
+        <small>Hingga</small>
+        <Datepicker
+          className={`${showCreateForm ? "invisible" : ""}`}
+          onSelectedDateChanged={setDateEnd}
+          minDate={dateStart}
+        />
+      </div>
       <div className="flex flex-wrap">
         <Button
           text="Buat Pengajuan"
           className="!w-48 my-2"
           onClick={() => setShowModal(true)}
         />
-        <Input
-          name="name"
-          type="text"
-          className="my-2 ml-5 !w-[350px]"
-          placeholder="Filter"
-        />
       </div>
 
-      <ListRecords isHidden={showCreateForm} />
+      <ListRecords
+        isHidden={showCreateForm}
+        setShowViewModal={setShowModal}
+        setActiveItem={setActiveItem}
+        selectedStatuses={selectedOptions}
+        startDate={dateStart}
+        endDate={dateEnd}
+      />
     </div>
   );
 }
