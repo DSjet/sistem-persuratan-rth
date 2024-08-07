@@ -14,6 +14,7 @@ function Home() {
   const router = useRouter();
   const [showViewModal, setShowViewModal] = useState(false);
   const [activeItem, setActiveItem] = useState(null);
+  const [fetchCount, setFetchCount] = useState(0);
   const [selectedOptions, setSelectedOptions] = useState([
     {
       value: 0,
@@ -49,7 +50,12 @@ function Home() {
   return (
     <div className="bg-white text-black m-5">
       {showViewModal && (
-        <ViewModal setShowModal={setShowViewModal} activeItem={activeItem} />
+        <ViewModal
+          setFetchCount={setFetchCount}
+          fetchCount={fetchCount}
+          setShowModal={setShowViewModal}
+          activeItem={activeItem}
+        />
       )}
 
       <p className="leading-5 mb-2">Filter</p>
@@ -81,6 +87,7 @@ function Home() {
         selectedStatuses={selectedOptions}
         startDate={dateStart}
         endDate={dateEnd}
+        fetchCount={fetchCount}
       />
     </div>
   );

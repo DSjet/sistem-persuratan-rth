@@ -16,6 +16,7 @@ function Home() {
   const auth = getAuth(app);
   const router = useRouter();
   const [showCreateForm, setShowModal] = useState(false);
+  const [fetchCount, setFetchCount] = useState(0);
 
   const [activeItem, setActiveItem] = useState(null);
   const [selectedOptions, setSelectedOptions] = useState([
@@ -53,7 +54,13 @@ function Home() {
 
   return (
     <div className="bg-white text-black m-5">
-      {showCreateForm && <CreateForm setShowModal={setShowModal} />}
+      {showCreateForm && (
+        <CreateForm
+          setShowModal={setShowModal}
+          setFetchCount={setFetchCount}
+          fetchCount={fetchCount}
+        />
+      )}
 
       <p className="leading-5 mb-2">Filter</p>
 
@@ -93,6 +100,7 @@ function Home() {
         selectedStatuses={selectedOptions}
         startDate={dateStart}
         endDate={dateEnd}
+        fetchCount={fetchCount}
       />
     </div>
   );

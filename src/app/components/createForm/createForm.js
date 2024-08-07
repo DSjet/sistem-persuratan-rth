@@ -12,7 +12,12 @@ import statusPengajuan from "../../../../consts/statusPengajuan";
 
 import { useState } from "react";
 
-const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
+const CreateForm = ({
+  setShowModal,
+  fetchData = () => {},
+  fetchCount,
+  setFetchCount,
+}) => {
   const auth = getAuth(app);
   const [pengikut, setPengikut] = useState([]);
   const [jenisSurat, setJenisSurat] = useState("");
@@ -126,6 +131,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
       console.log("Document written with ID: ", docRef.id);
 
       setShowModal(false);
+      setFetchCount(fetchCount + 1);
     } catch (error) {
       console.error("Error adding document: ", error);
     }
@@ -161,10 +167,6 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
           </div>
           <form className="w-full" onSubmit={onSubmit}>
             <div className="text-md font-semibold">Ajukan surat</div>
-            <p className="text-gray-600 leading-5 text-sm mb-4">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-              Vestibulum ac lobortis lacus, et condimentum diam.{" "}
-            </p>
             <select
               id="jenis_surat"
               class="border-[1px] border-gray-300 bg-gray-100 rounded-md py-2 px-4 text-base w-full my-2"
@@ -189,6 +191,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
 
             {jenisSurat === "Surat Keterangan Pindah" && (
               <>
+                <small>Nama Lengkap</small>
                 <Input
                   name="nama_lengkap"
                   type="text"
@@ -196,6 +199,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                   placeholder="Nama Lengkap"
                   required
                 />
+                <small>Jenis Kelamin</small>
                 <select
                   name="jenis_kelamin"
                   class="border-[1px] border-gray-300 bg-gray-100 rounded-md py-2 px-4 text-base w-full my-2"
@@ -206,6 +210,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                   <option value="Laki-laki">Laki-laki</option>
                   <option value="Perempuan">Perempuan</option>
                 </select>
+                <small>Tempat Lahir</small>
                 <Input
                   name="tempat_lahir"
                   type="text"
@@ -213,12 +218,14 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                   placeholder="Tempat Lahir"
                   required
                 />
+                <small>Tanggal Lahir</small>
                 <Input
                   required
                   name="tanggal_lahir"
                   type="date"
                   className="my-2"
                 />
+                <small>Kewarganegaraan</small>
                 <select
                   required
                   name="kewarganegaraan"
@@ -230,6 +237,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                   <option value="Indonesia">Indonesia</option>
                   <option value="WNA">WNA</option>
                 </select>
+                <small>Pekerjaan</small>
                 <Input
                   required
                   name="pekerjaan"
@@ -237,6 +245,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                   className="my-2"
                   placeholder="Pekerjaan"
                 />
+                <small>Status Perkawinan</small>
                 <select
                   required
                   name="status_perkawinan"
@@ -250,6 +259,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                   <option value="Cerai Hidup">Cerai Hidup</option>
                   <option value="Cerai Mati">Cerai Mati</option>
                 </select>
+                <small>Pendidikan</small>
                 <select
                   required
                   name="pendidikan"
@@ -275,6 +285,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                   <option value="Strata II">Strata II</option>
                   <option value="Strata III">Strata III</option>
                 </select>
+                <small>Agama</small>
                 <select
                   required
                   name="agama"
@@ -291,6 +302,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                   <option value="Khonghucu">Khonghucu</option>
                   <option value="Lainnya">Lainnya</option>
                 </select>
+                <small>Alamat Asal</small>
                 <Input
                   required
                   name="alamat_asal"
@@ -298,6 +310,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                   className="my-2"
                   placeholder="Alamat Asal"
                 />
+                <small>Desa Asal</small>
                 <Input
                   required
                   name="desa_asal"
@@ -305,6 +318,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                   className="my-2"
                   placeholder="Desa/Kelurahan Asal"
                 />
+                <small>Kecamatan Asal</small>
                 <Input
                   required
                   name="kecamatan_asal"
@@ -312,6 +326,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                   className="my-2"
                   placeholder="Kecamatan Asal"
                 />
+                <small>Kabupaten Asal</small>
                 <Input
                   required
                   name="kabupaten_asal"
@@ -319,6 +334,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                   className="my-2"
                   placeholder="Kabupaten Asal"
                 />
+                <small>Provinsi Asal</small>
                 <Input
                   required
                   name="provinsi_asal"
@@ -326,6 +342,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                   className="my-2"
                   placeholder="Provinsi Asal"
                 />
+                <small>Alamat Pindah</small>
                 <Input
                   required
                   name="alamat_pindah"
@@ -333,6 +350,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                   className="my-2"
                   placeholder="Alamat Pindah"
                 />
+                <small>Desa Pindah</small>
                 <Input
                   required
                   name="desa_pindah"
@@ -340,6 +358,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                   className="my-2"
                   placeholder="Desa/Kelurahan Pindah"
                 />
+                <small>Kecamatan Pindah</small>
                 <Input
                   required
                   name="kecamatan_pindah"
@@ -347,6 +366,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                   className="my-2"
                   placeholder="Kecamatan Pindah"
                 />
+                <small>Kabupaten Pindah</small>
                 <Input
                   required
                   name="kabupaten_pindah"
@@ -354,6 +374,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                   className="my-2"
                   placeholder="Kabupaten Pindah"
                 />
+                <small>Provinsi Pindah</small>
                 <Input
                   required
                   name="provinsi_pindah"
@@ -361,6 +382,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                   className="my-2"
                   placeholder="Provinsi Pindah"
                 />
+                <small>Alasan Pindah</small>
                 <Input
                   required
                   name="alasan_pindah"
@@ -370,7 +392,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                 />
                 {pengikut.map((_, index) => (
                   <div className="" key={index}>
-                    <small>Pengikut {index + 1}</small>
+                    <small>Nama Pengikut {index + 1}</small>
                     <Input
                       required
                       name={`nama_pengikut_${index + 1}`}
@@ -378,6 +400,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                       className="my-2"
                       placeholder={`Nama Pengikut ${index + 1}`}
                     />
+                    <small>Jenis Kelamin {index + 1}</small>
                     <select
                       required
                       name={`jenis_kelamin_pengikut_${index + 1}`}
@@ -389,6 +412,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                       <option value="Laki-laki">Laki-laki</option>
                       <option value="Perempuan">Perempuan</option>
                     </select>
+                    <small>Tempat Lahir Pengikut {index + 1}</small>
                     <Input
                       required
                       name={`tempat_lahir_pengikut_${index + 1}`}
@@ -396,6 +420,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                       className="my-2"
                       placeholder={`Tempat Lahir Pengikut ${index + 1}`}
                     />
+                    <small>Tanggal Lahir Pengikut {index + 1}</small>
                     <Input
                       required
                       name={`tanggal_lahir_pengikut_${index + 1}`}
@@ -403,6 +428,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                       className="my-2"
                       placeholder={`Tanggal Lahir Pengikut ${index + 1}`}
                     />
+                    <small>NIK Pengikut {index + 1}</small>
                     <Input
                       required
                       name={`nik_pengikut_${index + 1}`}
@@ -410,6 +436,7 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                       className="my-2"
                       placeholder={`NIK Pengikut ${index + 1}`}
                     />
+                    <small>Status Perkawinan {index + 1}</small>
                     <select
                       required
                       name={`status_perkawinan_pengikut_${index + 1}`}
@@ -423,12 +450,14 @@ const CreateForm = ({ setShowModal, fetchData = () => {} }) => {
                       <option value="Cerai Hidup">Cerai Hidup</option>
                       <option value="Cerai Mati">Cerai Mati</option>
                     </select>
+                    <small>Pekerjaan Pengikut {index + 1}</small>
                     <Input
                       name={`pekerjaan_pengikut_${index + 1}`}
                       type="string"
                       className="my-2"
                       placeholder={`Pekerjaan Pengikut ${index + 1}`}
                     />
+                    <small>Keterangan Pengikut {index + 1}</small>
                     <Input
                       name={`keterangan_pengikut_${index + 1}`}
                       type="string"

@@ -468,7 +468,7 @@ export async function POST(req) {
     // });
 
     // Upload the patched document to Firebase Storage
-    const filePath = `surat_kematian/Surat Kematian - ${new Date().toISOString()} - ${nama_lengkap}.docx`;
+    const filePath = `surat_pindah/Surat Pindah - ${new Date().toISOString()} - ${nama_lengkap}.docx`;
 
     const storageRef = ref(storage, filePath);
     const uploadTask = uploadBytesResumable(storageRef, patchedDoc);

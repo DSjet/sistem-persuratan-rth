@@ -4,16 +4,7 @@
 import { useEffect, useState } from "react";
 import db from "../../../utils/firestore";
 import app from "../../../lib/firebaseConfig";
-import {
-  collection,
-  endBefore,
-  getCountFromServer,
-  getDocs,
-  limit,
-  query,
-  startAfter,
-  where,
-} from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { Table, Spinner } from "flowbite-react";
 import { getAuth } from "firebase/auth";
 import moment from "moment";
@@ -21,6 +12,7 @@ import Moment from "react-moment";
 import "moment/locale/id";
 
 const AdminListRecords = ({
+  fetchCount,
   isHidden = false,
   setShowViewModal = () => {},
   setActiveItem = () => {},
@@ -43,11 +35,6 @@ const AdminListRecords = ({
 }) => {
   const [pengajuans, setPengajuans] = useState([]);
   const [user, setUser] = useState(null);
-  const [lastItem, setLastItem] = useState(null);
-  const [firstItem, setFirstItem] = useState(null);
-  const [itemPerPage, setItemPerPage] = useState(10);
-  const [pageCount, setPageCount] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -55,42 +42,47 @@ const AdminListRecords = ({
     const unsubscribe = auth.onAuthStateChanged(async (localUser) => {
       if (localUser) {
         setUser(localUser);
-        setIsLoading(true);
-        // filter where tanggal_pengajuan is between startDate and endDate, and status is in selectedStatuses
-        // then convert to int
 
-        const startTimestamp = moment(startDate).startOf("day").format("X");
-
-        const endTimestamp = moment(endDate).endOf("day").format("X");
-        let items = null;
-        const q = query(
-          collection(db, "pengajuans"),
-          where("tanggal_pengajuan", ">=", startTimestamp),
-          where("tanggal_pengajuan", "<=", endTimestamp),
-          where(
-            "status",
-            "in",
-            selectedStatuses.map((element) => element.value)
-          )
-          // limit(itemPerPage)
-        );
-
-        items = await getDocs(q);
-
-        items = items.docs.map((doc) => {
-          return { ...doc.data(), id: doc.id };
-        });
-
-        setPengajuans(items);
-
-        setIsLoading(false);
+        fetchPengajuan();
       } else {
         setUser(null);
       }
     });
 
     return () => unsubscribe();
-  }, [user, startDate, endDate, selectedStatuses]);
+  }, [user, startDate, endDate, selectedStatuses, fetchCount]);
+
+  const fetchPengajuan = async () => {
+    setIsLoading(true);
+    // filter where tanggal_pengajuan is between startDate and endDate, and status is in selectedStatuses
+    // then convert to int
+
+    const startTimestamp = moment(startDate).startOf("day").format("X");
+
+    const endTimestamp = moment(endDate).endOf("day").format("X");
+    let items = null;
+    const q = query(
+      collection(db, "pengajuans"),
+      where("tanggal_pengajuan", ">=", startTimestamp),
+      where("tanggal_pengajuan", "<=", endTimestamp),
+      where(
+        "status",
+        "in",
+        selectedStatuses.map((element) => element.value)
+      )
+      // limit(itemPerPage)
+    );
+
+    items = await getDocs(q);
+
+    items = items.docs.map((doc) => {
+      return { ...doc.data(), id: doc.id };
+    });
+
+    setPengajuans(items);
+
+    setIsLoading(false);
+  };
 
   const handleShowModal = (selectedItem) => {
     console.log(selectedItem.id);
