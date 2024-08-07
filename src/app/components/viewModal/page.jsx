@@ -127,7 +127,7 @@ const ViewModal = ({ setShowModal, activeItem, setFetchCount, fetchCount }) => {
 
     const endpoint = endpointMaps[activeItem?.jenis_surat];
     // call localhost:3000/api/surat_kematian api using fetch function
-    fetch(`https://simaper-rth.online/api/${endpoint}`, {
+    fetch(`https://www.simaper-rth.online/api/${endpoint}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
