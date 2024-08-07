@@ -31,6 +31,7 @@ const ListRecords = ({
       label: "Ditolak",
     },
   ],
+  fetchCount,
 }) => {
   const [pengajuans, setPengajuans] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -76,7 +77,7 @@ const ListRecords = ({
     });
 
     return () => unsubscribe();
-  }, [user, startDate, endDate, selectedStatuses]);
+  }, [user, startDate, endDate, selectedStatuses, fetchCount]);
 
   const fetchItems = async () => {
     // get items where user.id, == user.id

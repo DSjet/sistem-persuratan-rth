@@ -86,8 +86,9 @@ const kolomPengikut = [
   { key: "ket", label: "Keterangan" },
 ];
 
-const ViewModal = ({ setShowModal, activeItem }) => {
+const ViewModal = ({ setShowModal, activeItem, setFetchCount, fetchCount }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [localFetchCount, setLocalFetchCount] = useState(0);
   const handleReject = async () => {
     try {
       // update current item's status to DITOLAK
@@ -126,7 +127,7 @@ const ViewModal = ({ setShowModal, activeItem }) => {
 
     const endpoint = endpointMaps[activeItem?.jenis_surat];
     // call localhost:3000/api/surat_kematian api using fetch function
-    fetch(`https://www.simaper-rth.online/api/${endpoint}`, {
+    fetch(`http://localhost:3000/api/${endpoint}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -139,6 +140,7 @@ const ViewModal = ({ setShowModal, activeItem }) => {
         const docRef = await updateDoc(doc(db, "pengajuans", activeItem?.id), {
           filePath: data.data.filePath,
         });
+        setFetchCount(fetchCount + 1);
       })
       .catch((error) => {
         console.error("Error:", error);
