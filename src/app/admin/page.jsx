@@ -74,6 +74,7 @@ function Home() {
         onSelectedDateChanged={setDateStart}
         maxDate={dateEnd}
       />
+      <small>Hingga</small>
       <Datepicker
         className={`${showViewModal ? "invisible" : ""} mb-10`}
         onSelectedDateChanged={setDateEnd}
