@@ -11,6 +11,7 @@ import moment from "moment";
 import { useState } from "react";
 import { getStorage, getDownloadURL, ref } from "firebase/storage";
 import app from "@/lib/firebaseConfig";
+import { Spinner } from "flowbite-react";
 
 const kolomSurat = {
   "Surat Keterangan Pindah": [
@@ -274,20 +275,30 @@ const ViewModal = ({ setShowModal, activeItem, setFetchCount, fetchCount }) => {
               placeholder="Nomor Surat"
             />
             {activeItem?.status == 0 ? (
-              <div className="flex gap-4">
-                <Button
-                  onClick={handleReject}
-                  text="Tolak"
-                  variation="danger"
-                  disabled={isLoading}
-                />
-                <Button
-                  type="submit"
-                  text="Terima"
-                  variation="primary"
-                  disabled={isLoading}
-                />
-              </div>
+              // if isloading is true, show loading spinner
+              isLoading ? (
+                <div className="flex justify-center">
+                  <Spinner aria-label="Default status example" />
+                </div>
+              ) : (
+                // if isloading is false, show button
+                // if active item status is 0, show accept and reject button
+                // if active item status is 1, show download button
+                <div className="flex gap-4">
+                  <Button
+                    onClick={handleReject}
+                    text="Tolak"
+                    variation="danger"
+                    disabled={isLoading}
+                  />
+                  <Button
+                    type="submit"
+                    text="Terima"
+                    variation="primary"
+                    disabled={isLoading}
+                  />
+                </div>
+              )
             ) : activeItem?.status == 1 ? (
               <Button
                 text="Unduh Surat"

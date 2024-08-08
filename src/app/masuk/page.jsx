@@ -37,16 +37,6 @@ export default function Masuk() {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      const auth = getAuth(app);
-      await signOut(auth);
-      router.push("/masuk");
-    } catch (error) {
-      console.error("Error signing out", error);
-    }
-  };
-
   return (
     <main>
       <div className="h-56 sm:h-64 xl:h-80 2xl:h-96 m-5">
@@ -68,6 +58,15 @@ export default function Masuk() {
           />
           Masuk dengan Google
         </div>
+        <Button
+          text="Lihat Panduan"
+          className="!w-48 my-2"
+          onClick={() => {
+            // redirect to https://bit.ly/modulpenggunaSIMAPER
+
+            window.open("https://bit.ly/modulpenggunaSIMAPER", "_blank");
+          }}
+        />
       </div>
     </main>
   );

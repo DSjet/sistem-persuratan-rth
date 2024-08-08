@@ -20,7 +20,11 @@ const Navbar = () => {
     const auth = getAuth(app);
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
+        // if user is accessing /panduan, bypass the check
         setUser(user);
+        if (window.location.pathname == "/panduan") {
+          return;
+        }
         if (user.email == "persuratanrtha@gmail.com") {
           router.push("/admin");
         } else {
