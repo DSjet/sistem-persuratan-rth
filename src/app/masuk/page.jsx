@@ -8,6 +8,7 @@ import { signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
 
 import { Carousel } from "flowbite-react";
 import Image from "next/image";
+import Button from "../components/button/button";
 
 export default function Masuk() {
   const [user, setUser] = useState(null);
@@ -60,11 +61,9 @@ export default function Masuk() {
         </div>
         <Button
           text="Lihat Panduan"
-          className="!w-48 my-2"
+          className="w-4 my-2"
           onClick={() => {
-            // redirect to https://bit.ly/modulpenggunaSIMAPER
-
-            window.open("https://bit.ly/modulpenggunaSIMAPER", "_blank");
+            router.push("/panduan");
           }}
         />
       </div>
